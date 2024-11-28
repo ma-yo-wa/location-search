@@ -14,16 +14,16 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const rateLimit = require("express-rate-limit");
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-});
-app.use("/search", limiter);
+// const rateLimit = require("express-rate-limit");
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 100, // limit each IP to 100 requests per windowMs
+// });
+// app.use("/search", limiter);
 
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
+const sequelize = new Sequelize('postgresql://locations_db_user:y8KwwqToDzseHKK0H29IoSD5DwOWLQyE@dpg-ct4022qj1k6c73ecl940-a.oregon-postgres.render.com/locations_db', {
   dialect: 'postgres',
   dialectOptions: {
     ssl: {
