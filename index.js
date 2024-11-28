@@ -5,6 +5,7 @@ const morgan = require("morgan");
 require("dotenv").config();
 
 const app = express();
+const sequelize = require('./config/database');
 
 const LocationService = require("./services/locationService");
 
@@ -20,18 +21,6 @@ app.use(express.urlencoded({ extended: true }));
 //   max: 100, // limit each IP to 100 requests per windowMs
 // });
 // app.use("/search", limiter);
-
-const { Sequelize } = require('sequelize');
-
-const sequelize = new Sequelize('postgresql://locations_db_user:y8KwwqToDzseHKK0H29IoSD5DwOWLQyE@dpg-ct4022qj1k6c73ecl940-a.oregon-postgres.render.com/locations_db', {
-  dialect: 'postgres',
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
-  },
-});
 
 sequelize
   .authenticate()
