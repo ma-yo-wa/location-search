@@ -57,7 +57,7 @@ app.get("/search", async (req, res) => {
 });
 
 app.use((req, res) => {
-  console.log('DATABASE_URL:', process.env.DATABASE_URL);
+  console.log('DATABASE_URL:', process.env.NODE_ENV, process.env.DATABASE_URL);
   res.status(404).json({
     success: false,
     error: "Route not foun",
