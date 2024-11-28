@@ -1,13 +1,16 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
-require("dotenv").config();
+const rateLimit = require("express-rate-limit");
+const { sequelize } = require("./models");
 
 const app = express();
-const sequelize = require('./config/database');
-
-const LocationService = require("./services/locationService");
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+});
 
 app.use(helmet());
 app.use(cors());
@@ -15,23 +18,17 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// const rateLimit = require("express-rate-limit");
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 100, // limit each IP to 100 requests per windowMs
-// });
-// app.use("/search", limiter);
-
 sequelize
   .authenticate()
   .then(() => {
     console.log("Database connection established successfullyyyyy.");
 
+    const LocationService = require("./services/locationService");
 
-    app.get("/search", async (req, res) => {
+    app.get("/search", limiter, async (req, res) => {
       try {
         const { q: searchText, latitude, longitude } = req.query;
-    
+
         // Input validation
         if (latitude && isNaN(parseFloat(latitude))) {
           return res.status(400).json({
@@ -39,20 +36,20 @@ sequelize
             error: "Invalid latitude format",
           });
         }
-    
+
         if (longitude && isNaN(parseFloat(longitude))) {
           return res.status(400).json({
             success: false,
             error: "Invalid longitude format",
           });
         }
-    
+
         const results = await LocationService.searchLocations({
           searchText,
           latitude: latitude ? parseFloat(latitude) : null,
           longitude: longitude ? parseFloat(longitude) : null,
         });
-    
+
         res.json(results);
       } catch (error) {
         console.error("Search error:", error);
@@ -62,15 +59,19 @@ sequelize
         });
       }
     });
-    
+
     app.use((req, res) => {
-      console.log("DATABASE_URL:", process.env.NODE_ENV, process.env.DATABASE_URL);
+      console.log(
+        "DATABASE_URL:",
+        process.env.NODE_ENV,
+        process.env.DATABASE_URL
+      );
       res.status(404).json({
         success: false,
         error: "Route not foun",
       });
     });
-    
+
     app.use((err, req, res, next) => {
       console.error(err.stack);
       res.status(500).json({
@@ -78,14 +79,11 @@ sequelize
         error: "Something broke!",
       });
     });
-    
-    
+
     const PORT = process.env.PORT || 3000;
     const server = app.listen(PORT, () => {
       console.log(`Server running on portttt ${PORT}`);
     });
-
-
   })
   .catch((err) => {
     console.error("Unable to connect to the database:", err);
