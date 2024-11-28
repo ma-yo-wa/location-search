@@ -6,6 +6,17 @@ const {
 } = require("../utils/geohash");
 const geohash = require("ngeohash");
 
+const sequelize = require('../config/database');
+
+const checkConnection = async () => {
+    try {
+        await sequelize.authenticate();
+        console.log('Connection still alive during search');
+    } catch (err) {
+        console.error('Connection lost during search:', err);
+    }
+};
+
 const Location = db.Location;
 
 class LocationService {
