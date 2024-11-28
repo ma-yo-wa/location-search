@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "sequelize-cli db:migrate && sequelize-cli db:seed:all node index.js",
+    "db:setup": "sequelize-cli db:migrate && sequelize-cli db:seed:all",
+    "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
