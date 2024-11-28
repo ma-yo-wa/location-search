@@ -1,5 +1,6 @@
 const fs = require('fs');
 const csvParser = require('csv-parser');
+const ngeohash = require('ngeohash');
 
 const csvFilePath = './data/geolocation_data.csv';
 
@@ -18,6 +19,7 @@ module.exports = {
             country: row.country,
             latitude: parseFloat(row.latitude),
             longitude: parseFloat(row.longitude),
+            geohash: ngeohash.encode(parseFloat(row.latitude), parseFloat(row.longitude)),
             time_zone: row.time_zone,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -25,6 +27,7 @@ module.exports = {
         })
         .on('end', async () => {
           try {
+            console.log(records, 'here')
             await queryInterface.bulkInsert('Locations', records);
             resolve();
           } catch (error) {
