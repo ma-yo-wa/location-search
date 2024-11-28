@@ -30,19 +30,22 @@ const calculateTextScore = (searchText, location) => {
     street: 0.05,
   };
 
+  const getMatchRatio = (query, fieldValue) => {
+    if (query === fieldValue) return 1;
+    
+    // Calculate what percentage of the field matches the query
+    if (fieldValue.includes(query)) {
+        return query.length / fieldValue.length;
+    }
+
+    return 0;
+};
+
+
   Object.entries(weights).forEach(([field, weight]) => {
     const fieldValue = location[field]?.toLowerCase() || "";
-
-    if (fieldValue === query) {
-      // Exact match
-      maxScore = Math.max(maxScore, weight);
-    } else if (fieldValue.startsWith(query) && query.length > 2) {
-      // Prefix match
-      maxScore = Math.max(maxScore, weight * 0.5);
-    } else if (fieldValue.includes(query) && query.length > 2) {
-      // Partial match
-      maxScore = Math.max(maxScore, weight * 0.3);
-    }
+    const ratio = getMatchRatio(query, fieldValue);
+    maxScore = Math.max(maxScore, weight * ratio);
   });
 
   return Number(maxScore.toFixed(2));
