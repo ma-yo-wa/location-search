@@ -15,7 +15,7 @@ module.exports = {
         .pipe(csvParser())
         .on('data', (row) => {
           records.push({
-            street: row.street || null, // Use null if not provided
+            street: row.street || null,
             city: row.city || null,
             zip_code: row.zip_code || null,
             county: row.county || null,

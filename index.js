@@ -25,7 +25,7 @@ sequelize
 
     app.get("/search", limiter, async (req, res) => {
       try {
-        const { q: searchText, latitude, longitude } = req.query;
+        const { q: searchText, latitude, longitude, page = 1, limit = 10 } = req.query;
 
         // Input validation
         if (latitude && isNaN(parseFloat(latitude))) {
@@ -46,6 +46,8 @@ sequelize
           searchText,
           latitude: latitude ? parseFloat(latitude) : null,
           longitude: longitude ? parseFloat(longitude) : null,
+          page: parseInt(page, 10),
+          limit: parseInt(limit, 10)
         });
 
         res.json(results);
