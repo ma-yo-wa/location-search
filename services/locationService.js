@@ -13,7 +13,6 @@ const Location = db.Location;
 class LocationService {
     async searchLocations({ searchText, latitude, longitude, page = 1, limit = 10 }) {
         try {
-            // Generate cache key and check cache
             const cacheKey = generateCacheKey({ searchText, latitude, longitude, page, limit });
             const cachedResult = cache.get(cacheKey);
             
@@ -63,12 +62,49 @@ class LocationService {
                 [Op.or]: [
                     { city: { [Op.iLike]: `%${searchText.trim()}%` }},
                     { country: { [Op.iLike]: `%${searchText.trim()}%` }},
-                    { county: { [Op.iLike]: `%${searchText.trim()}%` }},
-                    { street: { [Op.iLike]: `%${searchText.trim()}%` }},
-                    { zip_code: { [Op.iLike]: `%${searchText.trim()}%` }}
+                    // Add other fields as necessary
                 ]
             } : {};
+
             // Case 2: Text search with coordinates
+            if (searchText?.trim() && latitude && longitude) {
+                console.log('Searching with text and coordinates:', searchText.trim());
+                const matches = await Location.findAndCountAll({
+                    where: textSearchCondition,
+                    limit: limit,
+                    offset: (page - 1) * limit
+                });
+
+                console.log('Found matches:', matches.count);
+
+                const results = matches.rows.map(location => {
+                    const textScore = calculateTextScore(searchText, location);
+                    const maxDistance = 6371; // Set max distance to 6371 km (Earth's radius)
+                    const geoScore = latitude && longitude 
+                        ? 1 - (calculateHaversineDistance(latitude, longitude, location.latitude, location.longitude) / maxDistance)
+                        : 0;
+
+                    const combinedScore = Number(((0.6 * textScore) + (0.4 * geoScore)).toFixed(2));
+
+                    return {
+                        ...location.toJSON(),
+                        score: combinedScore
+                    };
+                }).sort((a, b) => b.score - a.score);
+
+                result = {
+                    success: true,
+                    results,
+                    meta: {
+                        page: page,
+                        limit: limit,
+                        total: matches.count
+                    }
+                };
+            }
+
+            // Case 3: Text Only
+
             if (searchText?.trim()) {
                 const matches = await Location.findAndCountAll({
                     where: textSearchCondition,
@@ -89,8 +125,8 @@ class LocationService {
                     }
                 };
             }
-    
-            // Case 3: Coordinates only
+
+            // Case 4: Coordinates only
             if (latitude && longitude) {
                 const searchGeohash = geohash.encode(latitude, longitude, 2);
                 const matches = await Location.findAndCountAll({
@@ -121,7 +157,7 @@ class LocationService {
                     }
                 };
             }
-    
+
             return result;
 
         } catch (error) {
