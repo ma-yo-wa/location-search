@@ -65,7 +65,6 @@ class LocationService {
             } : {};
             // Case 2: Text search with coordinates
             if (searchText?.trim() && latitude && longitude) {
-                console.log('Searching with text and coordinates:', searchText.trim());
                 const matches = await Location.findAll({
                     where: textSearchCondition
                 });
@@ -108,7 +107,6 @@ class LocationService {
     
             // Case 4: Coordinates only
             if (latitude && longitude) {
-                console.log('Searching with coordinates only:', latitude, longitude);
                 const searchGeohash = geohash.encode(latitude, longitude, 2);
                 const matches = await Location.findAll({
                     where: {

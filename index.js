@@ -61,7 +61,7 @@ sequelize
     app.use((req, res) => {
       res.status(404).json({
         success: false,
-        error: "Route not foun",
+        error: "Route not found",
       });
     });
 
@@ -75,7 +75,7 @@ sequelize
 
     const PORT = process.env.PORT || 3000;
     const server = app.listen(PORT, () => {
-      console.log(`Server running on portttt ${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
