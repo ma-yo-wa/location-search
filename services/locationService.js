@@ -101,10 +101,10 @@ class LocationService {
                         total: matches.count
                     }
                 };
+                return result;
             }
 
             // Case 3: Text Only
-
             if (searchText?.trim()) {
                 const matches = await Location.findAndCountAll({
                     where: textSearchCondition,
@@ -124,6 +124,7 @@ class LocationService {
                         total: matches.count
                     }
                 };
+                return result;
             }
 
             // Case 4: Coordinates only
@@ -156,9 +157,14 @@ class LocationService {
                         total: matches.count
                     }
                 };
+                return result;
             }
 
-            return result;
+            // If no cases matched, return a default response
+            return {
+                success: false,
+                error: 'No results found'
+            };
 
         } catch (error) {
             console.error('Search error:', error);
