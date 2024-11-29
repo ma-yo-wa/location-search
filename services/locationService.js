@@ -5,6 +5,7 @@ const {
   calculateTextScore,
   calculateHaversineDistance
 } = require("../utils/geohash");
+const { cache, generateCacheKey } = require("../utils/cache");
 const geohash = require("ngeohash");
 
 const Location = db.Location;
@@ -12,6 +13,17 @@ const Location = db.Location;
 class LocationService {
     async searchLocations({ searchText, latitude, longitude }) {
         try {
+            // Generate cache key and check cache
+            const cacheKey = generateCacheKey({ searchText, latitude, longitude });
+            const cachedResult = cache.get(cacheKey);
+            
+            if (cachedResult) {
+                console.log('Cache hit for:', cacheKey);
+                return cachedResult;
+            }
+
+            console.log('Cache miss for:', cacheKey);
+
             // Input validation
             if (latitude && (latitude < -90 || latitude > 90)) {
                 throw new Error('Invalid latitude. Must be between -90 and 90');
@@ -19,26 +31,28 @@ class LocationService {
             if (longitude && (longitude < -180 || longitude > 180)) {
                 throw new Error('Invalid longitude. Must be between -180 and 180');
             }
-    
+
+            let result;
+
             // Case 1: Exact coordinates
             if (latitude && longitude) {
                 const exactMatch = await Location.findOne({
-                    where: {
-                        latitude: latitude,
-                        longitude: longitude
-                    }
+                    where: { latitude, longitude }
                 });
-    
+
                 if (exactMatch) {
-                    return {
+                    result = {
                         success: true,
                         results: [{
                             ...exactMatch.toJSON(),
                             score: 1.00
                         }]
                     };
+                    cache.set(cacheKey, result);
+                    return result;
                 }
             }
+
             // Build text search condition
             const textSearchCondition = searchText?.trim() ? {
                 [Op.or]: [
@@ -71,7 +85,7 @@ class LocationService {
                     };
                 }).sort((a, b) => b.score - a.score);
     
-                return {
+                result = {
                     success: true,
                     results
                 };
@@ -83,7 +97,7 @@ class LocationService {
                     where: textSearchCondition
                 });
     
-                return {
+                result = {
                     success: true,
                     results: matches.map(location => ({
                         ...location.toJSON(),
@@ -112,17 +126,19 @@ class LocationService {
                 .sort((a, b) => b.score - a.score)
                 .slice(0, 10);
     
-                return {
+                result = {
                     success: true,
                     results
                 };
             }
     
-            return {
-                success: true,
-                results: []
-            };
-    
+            // Store the result in cache before returning
+            if (result?.success) {
+                cache.set(cacheKey, result);
+            }
+
+            return result;
+
         } catch (error) {
             console.error('Search error:', error);
             return {
@@ -130,6 +146,11 @@ class LocationService {
                 error: error.message || 'An error occurred during search'
             };
         }
+    }
+
+    clearCache() {
+        cache.flushAll();
+        console.log('Cache cleared');
     }
 }
 
