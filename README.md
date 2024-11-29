@@ -10,8 +10,8 @@ To install and run the application, follow these steps:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/yourusername/location-service.git
-   cd location-service
+   git clone https://github.com/ma-yo-wa/location-search-backend.git
+   cd location-search-backend
    ```
 
 2. **Install Dependencies**:
