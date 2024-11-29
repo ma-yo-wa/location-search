@@ -4,7 +4,7 @@ const {
   calculateGeohashScore,
   calculateTextScore,
   calculateHaversineDistance
-} = require("../utils/geohash");
+} = require("../utils/geolocationUtils");
 const { cache, generateCacheKey } = require("../utils/cache");
 const geohash = require("ngeohash");
 

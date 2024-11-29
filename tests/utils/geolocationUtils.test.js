@@ -1,4 +1,4 @@
-const { calculateGeohashScore, calculateTextScore } = require('../../utils/geohash');
+const { calculateGeohashScore, calculateTextScore } = require('../../utils/geolocationUtils');
 
 describe('Geohash Utils', () => {
   describe('calculateGeohashScore', () => {

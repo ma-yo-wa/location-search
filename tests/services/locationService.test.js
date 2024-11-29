@@ -1,6 +1,6 @@
 const LocationService = require('../../services/locationService');
 const { Location } = require('../../models');
-const { calculateHaversineDistance } = require('../../utils/geohash');
+const { calculateHaversineDistance } = require('../../utils/geolocationUtils');
 const { cache } = require('../../utils/cache');
 
 // Mock the models

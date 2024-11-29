@@ -53,7 +53,7 @@ sequelize
         console.error("Search error:", error);
         res.status(500).json({
           success: false,
-          error: "Internal server error",
+          error: "Internal server error: " + error.message,
         });
       }
     });
@@ -69,7 +69,7 @@ sequelize
       console.error(err.stack);
       res.status(500).json({
         success: false,
-        error: "Something broke!",
+        error: "Something broke! " + err.message,
       });
     });
 
@@ -78,6 +78,7 @@ sequelize
       console.log(`Server running on port ${PORT}`);
     });
   })
-  .catch((err) => {
-    console.error("Unable to connect to the database:", err);
+  .catch(error => {
+    console.error("Database connection error:", error);
+    process.exit(1); // Exit the process with failure
   });
