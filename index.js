@@ -21,8 +21,6 @@ app.use(express.urlencoded({ extended: true }));
 sequelize
   .authenticate()
   .then(() => {
-    console.log("Database connection established successfullyyyyy.");
-
     const LocationService = require("./services/locationService");
 
     app.get("/search", limiter, async (req, res) => {
@@ -61,11 +59,6 @@ sequelize
     });
 
     app.use((req, res) => {
-      console.log(
-        "DATABASE_URL:",
-        process.env.NODE_ENV,
-        process.env.DATABASE_URL
-      );
       res.status(404).json({
         success: false,
         error: "Route not foun",
@@ -88,5 +81,3 @@ sequelize
   .catch((err) => {
     console.error("Unable to connect to the database:", err);
   });
-
-// module.exports = server;

@@ -45,6 +45,9 @@ const calculateTextScore = (searchText, location) => {
   Object.entries(weights).forEach(([field, weight]) => {
     const fieldValue = location[field]?.toLowerCase() || "";
     const ratio = getMatchRatio(query, fieldValue);
+    if (fieldValue === 'gabon') {
+      console.log(ratio, '8989898989889')
+    }
     maxScore = Math.max(maxScore, weight * ratio);
   });
 
