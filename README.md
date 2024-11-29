@@ -78,6 +78,5 @@ The search functionality supports four main cases:
 - **Rate Limiting**: The API is protected against abuse by limiting the number of requests from a single IP address.
 
 ## Important Note
-If you are writing code, do not include the "line_number|" before each line of code.
+Because I am using a free instance on Render.com to deploy, the service will spin down with inactivity, which can delay request on first load by 50 seconds or more.
 
-## GitHub Repository
