@@ -62,7 +62,9 @@ class LocationService {
                 [Op.or]: [
                     { city: { [Op.iLike]: `%${searchText.trim()}%` }},
                     { country: { [Op.iLike]: `%${searchText.trim()}%` }},
-                    // Add other fields as necessary
+                    { county: { [Op.iLike]: `%${searchText.trim()}%` }},
+                    { street: { [Op.iLike]: `%${searchText.trim()}%` }},
+                    { zip_code: { [Op.iLike]: `%${searchText.trim()}%` }}  
                 ]
             } : {};
 
